@@ -43,55 +43,49 @@ export const JobSearchBar = ({
     !!filters.work_mode;
 
   return (
-    <div className="flex flex-col gap-md mb-lg">
-      <div className="flex flex-col md:flex-row gap-md">
-        <Field className="flex-1" label="Search">
-          <InputText
-            type="search"
-            placeholder="Search by title or description"
-            value={qInput}
-            onChange={(e) => onQChange(e.target.value)}
-          />
-        </Field>
-        <Field className="flex-1" label="Location">
-          <InputText
-            placeholder="e.g. Paris"
-            value={filters.location ?? ""}
-            onChange={(e) => setFilter("location", e.target.value)}
-          />
-        </Field>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-md md:items-end">
-        <Field className="flex-1" label="Contract type">
-          <Select
-            options={CONTRACT_OPTIONS}
-            value={filters.contract_type ?? ""}
-            isClearable
-            onChange={(value) =>
-              setFilter("contract_type", (value as string) || undefined)
-            }
-          />
-        </Field>
-        <Field className="flex-1" label="Work mode">
-          <Select
-            options={WORK_MODE_OPTIONS}
-            value={filters.work_mode ?? ""}
-            isClearable
-            onChange={(value) =>
-              setFilter("work_mode", (value as string) || undefined)
-            }
-          />
-        </Field>
-        <Button
-          variant="tertiary"
-          onClick={clear}
-          disabled={!hasAnyFilter}
-          className="md:w-auto"
-        >
-          Clear all
-        </Button>
-      </div>
+    <div className="flex flex-col lg:flex-row gap-md mb-lg lg:items-end">
+      <Field className="flex-1 lg:flex-[2]" label="Search">
+        <InputText
+          type="search"
+          placeholder="Search by title or description"
+          value={qInput}
+          onChange={(e) => onQChange(e.target.value)}
+        />
+      </Field>
+      <Field className="flex-1" label="Location">
+        <InputText
+          placeholder="e.g. Paris"
+          value={filters.location ?? ""}
+          onChange={(e) => setFilter("location", e.target.value)}
+        />
+      </Field>
+      <Field className="flex-1" label="Contract type">
+        <Select
+          options={CONTRACT_OPTIONS}
+          value={filters.contract_type ?? ""}
+          isClearable
+          onChange={(value) =>
+            setFilter("contract_type", (value as string) || undefined)
+          }
+        />
+      </Field>
+      <Field className="flex-1" label="Work mode">
+        <Select
+          options={WORK_MODE_OPTIONS}
+          value={filters.work_mode ?? ""}
+          isClearable
+          onChange={(value) =>
+            setFilter("work_mode", (value as string) || undefined)
+          }
+        />
+      </Field>
+      <Button
+        variant="tertiary"
+        onClick={clear}
+        disabled={!hasAnyFilter}
+      >
+        Clear all
+      </Button>
     </div>
   );
 };
