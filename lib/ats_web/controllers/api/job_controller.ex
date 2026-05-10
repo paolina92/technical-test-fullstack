@@ -7,11 +7,13 @@ defmodule AtsWeb.Api.JobController do
   action_fallback AtsWeb.FallbackController
 
   @doc """
-  List all jobs.
+  List jobs, optionally filtered by query params: q, location, contract_type, work_mode.
+  See docs/API.md for the full contract.
   """
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(conn, _params) do
-    jobs = Jobs.list_jobs()
+  def index(conn, params) do
+    filters = Map.take(params, ["q", "location", "contract_type", "work_mode"])
+    jobs = Jobs.list_jobs(filters)
     render(conn, :index, jobs: jobs)
   end
 
