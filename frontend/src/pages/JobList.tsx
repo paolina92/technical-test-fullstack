@@ -1,159 +1,116 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "welcome-ui/Button";
-import { Text } from "welcome-ui/Text";
-import { Card } from "welcome-ui/Card";
-import { Tag } from "welcome-ui/Tag";
 import { Loader } from "welcome-ui/Loader";
-import Cookies from "js-cookie";
-import { logout } from "../api/logout";
+import { Text } from "welcome-ui/Text";
 
-interface Job {
-  id: string;
-  title: string;
-  description: string;
-  contract_type: string;
-  office: string;
-  status: string;
-}
+import { logout } from "../api/logout";
+import { AuthHeader } from "../components/AuthHeader";
+import { JobCard } from "../components/JobCard";
+import { JobSearchBar } from "../components/JobSearchBar";
+import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { useJobFilters } from "../hooks/useJobFilters";
+import { useJobsQuery } from "../hooks/useJobsQuery";
 
 export const JobList = () => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [hasBearerToken, setHasBearerToken] = useState<boolean>(false);
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const navigate = useNavigate();
+  const { user, hasBearerToken, clear: clearUser } = useCurrentUser();
 
-  useEffect(() => {
-    fetch("/api/jobs")
-      .then((res) => res.json())
-      .then((response: { data: Job[] }) => {
-        setJobs(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    const csrfToken = Cookies.get("technical-test-csrf-token");
-    const bearerToken = Cookies.get("user-token");
-    setHasBearerToken(Boolean(bearerToken));
-
-    if (bearerToken) {
-      (async () => {
-        try {
-          const res = await fetch("/api/me", {
-            credentials: "include",
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${bearerToken}`,
-              ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
-            },
-          });
-
-          if (res.ok) {
-            const body = await res.json().catch(() => ({}));
-            setUser(body?.data ?? null);
-          } else {
-            setUser(null);
-          }
-        } catch (e) {
-          setUser(null);
-        }
-      })();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // ignore logout errors, still clear local state
     }
-  }, []);
+    clearUser();
+    navigate("/signin");
+  };
 
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text color="red">Error: {error}</Text>;
+  // Search: local input mirrors typing instantly, debounced value drives
+  // the URL sync and the query so the network does not fire on every keystroke.
+  const { filters, setFilter, clear } = useJobFilters();
+  const [qInput, setQInput] = useState(filters.q ?? "");
+  const debouncedQ = useDebouncedValue(qInput);
+
+  useEffect(() => {
+    setFilter("q", debouncedQ || undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQ]);
+
+  const effectiveFilters = { ...filters, q: debouncedQ || undefined };
+  const { jobs, isLoading, isError, isFetching } =
+    useJobsQuery(effectiveFilters);
+
+  // Hide drafts from unauthenticated users. This is a client-side guard;
+  // a proper fix belongs on the backend (filter status=published in the
+  // public scope). See README "Trade-offs" for the follow-up plan.
+  const visibleJobs = user ? jobs : jobs.filter((j) => j.status !== "draft");
+
+  const handleClear = () => {
+    setQInput("");
+    clear();
+  };
 
   return (
     <div className="p-xl max-w-1200 my-0 mx-auto">
       <div className="flex items-center justify-between mb-lg">
         <Text variant="heading-xl">Job Listings</Text>
+        <AuthHeader
+          hasBearerToken={hasBearerToken}
+          user={user}
+          onLogout={handleLogout}
+        />
+      </div>
 
-        {hasBearerToken ? (
-          <div className="flex items-center gap-sm">
-            {user ? (
-              <>
-                <Text variant="body-sm">{user.email}</Text>
-                <Button
-                  size="sm"
-                  variant="tertiary"
-                  onClick={async () => {
-                    try {
-                      await logout();
-                    } catch (e) {}
-                    setUser(null);
-                    setHasBearerToken(false);
-                    navigate("/signin");
-                  }}
-                >
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <Loader size="sm" />
+      <JobSearchBar
+        filters={filters}
+        qInput={qInput}
+        onQChange={setQInput}
+        setFilter={setFilter}
+        clear={handleClear}
+      />
+
+      {isLoading ? (
+        <div className="flex justify-center py-xl">
+          <Loader />
+        </div>
+      ) : isError ? (
+        <Text color="red">Failed to load jobs. Please try again.</Text>
+      ) : (
+        <>
+          <div
+            className="flex items-center justify-between mb-md"
+            aria-live="polite"
+          >
+            <Text variant="body-sm">
+              {visibleJobs.length === 0
+                ? "No jobs match your filters"
+                : `${visibleJobs.length} job${visibleJobs.length > 1 ? "s" : ""}`}
+              {isFetching && " · refreshing..."}
+            </Text>
+            {user && (
+              <Button as={Link} to="/jobs/new" size="sm">
+                Create a new job
+              </Button>
             )}
           </div>
-        ) : (
-          <div className="flex gap-sm">
-            <Button as={Link} to="/signup" size="sm">
-              Sign up
-            </Button>
-            <Button as={Link} to="/signin" size="sm" variant="tertiary">
-              Sign in
-            </Button>
-          </div>
-        )}
-      </div>
 
-      <div className="flex flex-col gap-md">
-        {user && (
-          <div className="flex items-center justify-end gap-sm">
-            <Button as={Link} to="/jobs/new" size="sm">
-              Create a new job
-            </Button>
-          </div>
-        )}
-        {jobs.map((job) => (
-          <Card key={job.id} size="sm">
-            <Card.Body>
-              <div className="flex items-start justify-between gap-md">
-                <div className="flex-1 min-w-0">
-                  <Link
-                    to={`/jobs/${job.id}`}
-                    className="no-underline hover:underline"
-                  >
-                    <Text variant="heading-md">{job.title}</Text>
-                  </Link>
-                  <Text variant="body-sm" className="mt-xs" lines={2}>
-                    {job.description}
-                  </Text>
-                  <div className="flex flex-wrap gap-xs mt-sm">
-                    <Tag size="md" variant={"blue"}>
-                      {job.contract_type}
-                    </Tag>
-                    <Tag size="md" variant="light-blue">
-                      {job.office}
-                    </Tag>
-                    <Tag size="md" variant={"green"}>
-                      {job.status}
-                    </Tag>
-                  </div>
-                </div>
-                <Button as={Link} to={`/jobs/${job.id}/apply`} size="sm">
-                  Apply
-                </Button>
-              </div>
-            </Card.Body>
-          </Card>
-        ))}
-      </div>
+          {visibleJobs.length === 0 ? (
+            <div className="text-center py-xl">
+              <Text variant="body-sm">
+                Try clearing some filters or changing your search.
+              </Text>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-md">
+              {visibleJobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

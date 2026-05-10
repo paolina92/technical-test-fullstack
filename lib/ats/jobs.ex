@@ -46,18 +46,78 @@ defmodule Ats.Jobs do
 
   def profession_name(_job), do: ""
 
+  @contract_type_values [:FULL_TIME, :PART_TIME, :TEMPORARY, :FREELANCE, :INTERNSHIP, :APPRENTICESHIP, :VIE]
+  @work_mode_values [:onsite, :remote, :hybrid]
+
   @doc """
-  Returns the list of jobs.
+  Returns the list of jobs, optionally filtered.
+
+  Accepted filter keys (all optional, all combinable as AND):
+  - `"q"` — case-insensitive substring search on `title` OR `description`
+  - `"location"` — case-insensitive match on `office`
+  - `"contract_type"` — exact match (FULL_TIME, PART_TIME, ...)
+  - `"work_mode"` — exact match (onsite, remote, hybrid)
+
+  Invalid enum values for `contract_type` / `work_mode` are silently ignored
+  (filter not applied) so a malformed query still returns results rather
+  than 4xx — keeps the public API forgiving.
 
   ## Examples
 
       iex> list_jobs()
       [%Job{}, ...]
 
+      iex> list_jobs(%{"q" => "react", "work_mode" => "remote"})
+      [%Job{}, ...]
   """
-  @spec list_jobs() :: [%Job{}]
-  def list_jobs do
-    Repo.all(Job) |> Repo.preload(:profession)
+  @spec list_jobs(map()) :: [%Job{}]
+  def list_jobs(filters \\ %{}) do
+    Job
+    |> apply_filters(filters)
+    |> Repo.all()
+    |> Repo.preload(:profession)
+  end
+
+  defp apply_filters(query, filters) when is_map(filters) do
+    Enum.reduce(filters, query, &apply_filter/2)
+  end
+
+  defp apply_filter({"q", q}, query) when is_binary(q) and q != "" do
+    pattern = "%" <> escape_like(q) <> "%"
+    from(j in query, where: ilike(j.title, ^pattern) or ilike(j.description, ^pattern))
+  end
+
+  defp apply_filter({"location", location}, query) when is_binary(location) and location != "" do
+    from(j in query, where: ilike(j.office, ^location))
+  end
+
+  defp apply_filter({"contract_type", value}, query) when is_binary(value) do
+    case enum_value(value, @contract_type_values) do
+      nil -> query
+      atom -> from(j in query, where: j.contract_type == ^atom)
+    end
+  end
+
+  defp apply_filter({"work_mode", value}, query) when is_binary(value) do
+    case enum_value(value, @work_mode_values) do
+      nil -> query
+      atom -> from(j in query, where: j.work_mode == ^atom)
+    end
+  end
+
+  defp apply_filter(_, query), do: query
+
+  # Avoid `String.to_atom/1` (memory leak risk on user-controlled input)
+  defp enum_value(value, allowed) do
+    Enum.find(allowed, fn atom -> Atom.to_string(atom) == value end)
+  end
+
+  # Escape % and _ so user input can't act as wildcards
+  defp escape_like(string) do
+    string
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
   end
 
   @doc """
