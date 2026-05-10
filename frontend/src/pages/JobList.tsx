@@ -42,6 +42,11 @@ export const JobList = () => {
   const { jobs, isLoading, isError, isFetching } =
     useJobsQuery(effectiveFilters);
 
+  // Hide drafts from unauthenticated users. This is a client-side guard;
+  // a proper fix belongs on the backend (filter status=published in the
+  // public scope). See README "Trade-offs" for the follow-up plan.
+  const visibleJobs = user ? jobs : jobs.filter((j) => j.status !== "draft");
+
   const handleClear = () => {
     setQInput("");
     clear();
@@ -79,9 +84,9 @@ export const JobList = () => {
             aria-live="polite"
           >
             <Text variant="body-sm">
-              {jobs.length === 0
+              {visibleJobs.length === 0
                 ? "No jobs match your filters"
-                : `${jobs.length} job${jobs.length > 1 ? "s" : ""}`}
+                : `${visibleJobs.length} job${visibleJobs.length > 1 ? "s" : ""}`}
               {isFetching && " · refreshing..."}
             </Text>
             {user && (
@@ -91,7 +96,7 @@ export const JobList = () => {
             )}
           </div>
 
-          {jobs.length === 0 ? (
+          {visibleJobs.length === 0 ? (
             <div className="text-center py-xl">
               <Text variant="body-sm">
                 Try clearing some filters or changing your search.
@@ -99,7 +104,7 @@ export const JobList = () => {
             </div>
           ) : (
             <div className="flex flex-col gap-md">
-              {jobs.map((job) => (
+              {visibleJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
