@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
+import { describe, expect, it } from "vitest";
 
 import { server } from "../mocks/server";
 import { JobList } from "./JobList";

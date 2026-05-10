@@ -31,7 +31,7 @@ export const JobSchema = z.object({
   office: z.string(),
   status: JobStatusSchema,
   work_mode: WorkModeSchema,
-  profession_id: z.number(),
+  profession_id: z.number().nullable(),
   inserted_at: z.string(),
   updated_at: z.string(),
 });
