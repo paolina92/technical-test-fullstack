@@ -3,7 +3,7 @@ import { Button } from "welcome-ui/Button";
 import { Loader } from "welcome-ui/Loader";
 import { Text } from "welcome-ui/Text";
 
-import type { CurrentUser } from "../../hooks/useCurrentUser";
+import type { CurrentUser } from "../../schemas/user";
 
 export type AuthHeaderProps = {
   hasBearerToken: boolean;
