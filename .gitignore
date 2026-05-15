@@ -53,3 +53,6 @@ npm-debug.log
 /frontend/.yarn/cache
 /frontend/.yarn/install-state.gz
 /frontend/.pnp.*
+
+# Local notes
+/DEBRIEF_NOTES.md
