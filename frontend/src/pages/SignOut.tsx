@@ -9,7 +9,9 @@ export const SignOut = () => {
     const handleSignOut = async () => {
       try {
         await logout();
-      } catch (e) {}
+      } catch (err) {
+        console.error("Logout API failed:", err);
+      }
       navigate("/signin", { replace: true });
     };
 
