@@ -12,7 +12,7 @@ import {
 // Convert the Zod enum values into the { label, value } shape the welcome-ui Select expects. e.g. "FULL_TIME" -> { value: "FULL_TIME", label: "full time" }.
 const CONTRACT_OPTIONS = ContractTypeSchema.options.map((value) => ({
   value,
-  label: value.replace("_", " ").toLowerCase(),
+  label: value.replaceAll("_", " ").toLowerCase(),
 }));
 
 const WORK_MODE_OPTIONS = WorkModeSchema.options.map((value) => ({
