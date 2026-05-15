@@ -21,8 +21,9 @@ export const useSignup = () => {
         });
         Cookies.set("user-token", token);
         navigate("/", { replace: true });
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        setError(message);
         throw err;
       } finally {
         setLoading(false);
