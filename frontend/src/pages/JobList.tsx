@@ -33,11 +33,22 @@ export const JobList = () => {
   const [qInput, setQInput] = useState(filters.q ?? "");
   const debouncedQ = useDebouncedValue(qInput);
 
+  const [locationInput, setLocationInput] = useState(filters.location ?? "");
+  const debouncedLocation = useDebouncedValue(locationInput);
+
   useEffect(() => {
     setFilter("q", debouncedQ || undefined);
   }, [debouncedQ, setFilter]);
 
-  const effectiveFilters = { ...filters, q: debouncedQ || undefined };
+  useEffect(() => {
+    setFilter("location", debouncedLocation || undefined);
+  }, [debouncedLocation, setFilter]);
+
+  const effectiveFilters = {
+    ...filters,
+    q: debouncedQ || undefined,
+    location: debouncedLocation || undefined,
+  };
   const { jobs, isLoading, isError, isFetching } =
     useJobsQuery(effectiveFilters);
 
@@ -48,6 +59,7 @@ export const JobList = () => {
 
   const handleClear = () => {
     setQInput("");
+    setLocationInput("");
     clear();
   };
 
@@ -67,6 +79,8 @@ export const JobList = () => {
         filters={filters}
         qInput={qInput}
         onQChange={setQInput}
+        locationInput={locationInput}
+        onLocationChange={setLocationInput}
         setFilter={setFilter}
         clear={handleClear}
       />
