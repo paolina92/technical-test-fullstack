@@ -1,18 +1,10 @@
-import Cookies from "js-cookie";
-
 import { CurrentUserResponseSchema, type CurrentUser } from "../schemas/user";
+import { buildHeaders } from "./_headers";
 
 export const getCurrentUser = async (): Promise<CurrentUser | null> => {
-  const csrfToken = Cookies.get("technical-test-csrf-token");
-  const bearerToken = Cookies.get("user-token");
-
   const res = await fetch("/api/me", {
     credentials: "include",
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${bearerToken}`,
-      ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
-    },
+    headers: buildHeaders(),
   });
 
   if (!res.ok) {

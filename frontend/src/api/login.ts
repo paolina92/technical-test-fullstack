@@ -1,3 +1,5 @@
+import { buildHeaders } from "./_headers";
+
 export type LoginParams = { email: string; password: string };
 
 export const login = async ({
@@ -6,7 +8,7 @@ export const login = async ({
 }: LoginParams): Promise<string> => {
   const res = await fetch("/api/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: buildHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ user: { email, password } }),
   });
 

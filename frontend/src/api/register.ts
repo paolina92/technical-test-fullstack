@@ -1,3 +1,5 @@
+import { buildHeaders } from "./_headers";
+
 export type RegisterParams = { email: string; password: string };
 
 export const register = async ({
@@ -6,7 +8,7 @@ export const register = async ({
 }: RegisterParams): Promise<string> => {
   const res = await fetch("/api/register", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: buildHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ user: { email, password } }),
   });
 
