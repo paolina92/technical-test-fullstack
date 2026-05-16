@@ -3,7 +3,6 @@ import { buildHeaders } from "./_headers";
 
 export const getCurrentUser = async (): Promise<CurrentUser | null> => {
   const res = await fetch("/api/me", {
-    credentials: "include",
     headers: buildHeaders(),
   });
 
