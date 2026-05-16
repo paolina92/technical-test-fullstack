@@ -35,8 +35,7 @@ export const JobList = () => {
 
   useEffect(() => {
     setFilter("q", debouncedQ || undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQ]);
+  }, [debouncedQ, setFilter]);
 
   const effectiveFilters = { ...filters, q: debouncedQ || undefined };
   const { jobs, isLoading, isError, isFetching } =
