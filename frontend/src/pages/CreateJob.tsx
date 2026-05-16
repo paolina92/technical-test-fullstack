@@ -79,6 +79,7 @@ export const CreateJob = () => {
 
   return (
     <div className="p-xl max-w-1200 my-0 mx-auto">
+      <title>Create job — ATS</title>
       <WUILink
         as={Link}
         to="/"

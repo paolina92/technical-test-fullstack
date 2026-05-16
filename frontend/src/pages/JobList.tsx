@@ -53,6 +53,7 @@ export const JobList = () => {
 
   return (
     <div className="p-xl max-w-1200 my-0 mx-auto">
+      <title>Job Listings — ATS</title>
       <div className="flex items-center justify-between mb-lg">
         <Text variant="heading-xl">Job Listings</Text>
         <AuthHeader

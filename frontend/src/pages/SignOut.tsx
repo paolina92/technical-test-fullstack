@@ -18,5 +18,10 @@ export const SignOut = () => {
     handleSignOut();
   }, [navigate]);
 
-  return <div>Signing out...</div>;
+  return (
+    <>
+      <title>Signing out — ATS</title>
+      <div>Signing out...</div>
+    </>
+  );
 };

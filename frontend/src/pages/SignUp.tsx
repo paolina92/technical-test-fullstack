@@ -14,6 +14,7 @@ export const SignUp = () => {
 
   return (
     <div className="max-w-640 mx-auto my-4xl p-xl">
+      <title>Sign up — ATS</title>
       <WUILink
         as={Link}
         to="/"
