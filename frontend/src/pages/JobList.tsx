@@ -86,11 +86,18 @@ export const JobList = () => {
       />
 
       {isLoading ? (
-        <div className="flex justify-center py-xl">
+        <div
+          className="flex justify-center py-xl"
+          role="status"
+          aria-live="polite"
+        >
           <Loader />
+          <span className="sr-only">Loading jobs...</span>
         </div>
       ) : isError ? (
-        <Text color="red">Failed to load jobs. Please try again.</Text>
+        <div role="alert">
+          <Text color="red">Failed to load jobs. Please try again.</Text>
+        </div>
       ) : (
         <>
           <div
