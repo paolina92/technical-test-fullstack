@@ -37,7 +37,12 @@ export const JobCard = ({ job }: JobCardProps) => (
             </Tag>
           </div>
         </div>
-        <Button as={Link} to={`/jobs/${job.id}/apply`} size="sm">
+        <Button
+          as={Link}
+          to={`/jobs/${job.id}/apply`}
+          size="sm"
+          aria-label={`Apply for ${job.title}`}
+        >
           Apply
         </Button>
       </div>
