@@ -19,9 +19,9 @@ export const SignOut = () => {
   }, [navigate]);
 
   return (
-    <>
+    <main>
       <title>Signing out — ATS</title>
       <div>Signing out...</div>
-    </>
+    </main>
   );
 };

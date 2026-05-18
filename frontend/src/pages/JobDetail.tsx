@@ -40,7 +40,7 @@ export const JobDetail = () => {
   if (!job) return <Text>Job not found</Text>;
 
   return (
-    <div className="p-xl max-w-1200 my-0 mx-auto">
+    <main className="p-xl max-w-1200 my-0 mx-auto">
       <title>{job.title} — ATS</title>
       <WUILink
         as={Link}
@@ -115,6 +115,6 @@ export const JobDetail = () => {
           </Card.Body>
         </Card>
       </div>
-    </div>
+    </main>
   );
 };
