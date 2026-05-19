@@ -1,46 +1,20 @@
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
-
-export type CurrentUser = { id: string; email: string };
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCurrentUser } from "../api/me";
 
 export function useCurrentUser() {
-  const [hasBearerToken, setHasBearerToken] = useState(false);
-  const [user, setUser] = useState<CurrentUser | null>(null);
+  const hasBearerToken = Boolean(Cookies.get("user-token"));
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const csrfToken = Cookies.get("technical-test-csrf-token");
-    const bearerToken = Cookies.get("user-token");
-    setHasBearerToken(Boolean(bearerToken));
-
-    if (!bearerToken) return;
-
-    (async () => {
-      try {
-        const res = await fetch("/api/me", {
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${bearerToken}`,
-            ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
-          },
-        });
-
-        if (res.ok) {
-          const body = await res.json().catch(() => ({}));
-          setUser(body?.data ?? null);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        setUser(null);
-      }
-    })();
-  }, []);
+  const { data: user } = useQuery({
+    queryKey: ["me"],
+    queryFn: getCurrentUser,
+    enabled: hasBearerToken,
+  });
 
   const clear = () => {
-    setUser(null);
-    setHasBearerToken(false);
+    queryClient.removeQueries({ queryKey: ["me"] });
   };
 
-  return { user, hasBearerToken, clear };
+  return { user: user ?? null, hasBearerToken, clear };
 }

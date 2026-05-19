@@ -13,7 +13,8 @@ export const SignUp = () => {
   };
 
   return (
-    <div className="max-w-640 mx-auto my-4xl p-xl">
+    <main className="max-w-640 mx-auto my-4xl p-xl">
+      <title>Sign up — ATS</title>
       <WUILink
         as={Link}
         to="/"
@@ -39,6 +40,6 @@ export const SignUp = () => {
           Already have an account? Sign in
         </WUILink>
       </div>
-    </div>
+    </main>
   );
 };

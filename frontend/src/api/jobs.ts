@@ -3,6 +3,7 @@ import {
   type JobFilters,
   type JobsResponse,
 } from "../schemas/job";
+import { buildHeaders } from "./_headers";
 
 export const getJobs = async (
   filters: JobFilters = {},
@@ -16,7 +17,7 @@ export const getJobs = async (
   const query = params.toString();
   const url = query ? `/api/jobs?${query}` : "/api/jobs";
 
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: buildHeaders() });
   if (!res.ok) {
     throw new Error(`Failed to fetch jobs: ${res.status}`);
   }

@@ -1,3 +1,5 @@
+import { buildHeaders } from "./_headers";
+
 export type ApplyParams = {
   full_name: string;
   email: string;
@@ -13,7 +15,7 @@ export const apply = async (
 ): Promise<void> => {
   const res = await fetch(`/api/jobs/${jobId}/apply`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: buildHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ apply: params }),
   });
 

@@ -33,12 +33,22 @@ export const JobList = () => {
   const [qInput, setQInput] = useState(filters.q ?? "");
   const debouncedQ = useDebouncedValue(qInput);
 
+  const [locationInput, setLocationInput] = useState(filters.location ?? "");
+  const debouncedLocation = useDebouncedValue(locationInput);
+
   useEffect(() => {
     setFilter("q", debouncedQ || undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQ]);
+  }, [debouncedQ, setFilter]);
 
-  const effectiveFilters = { ...filters, q: debouncedQ || undefined };
+  useEffect(() => {
+    setFilter("location", debouncedLocation || undefined);
+  }, [debouncedLocation, setFilter]);
+
+  const effectiveFilters = {
+    ...filters,
+    q: debouncedQ || undefined,
+    location: debouncedLocation || undefined,
+  };
   const { jobs, isLoading, isError, isFetching } =
     useJobsQuery(effectiveFilters);
 
@@ -49,34 +59,45 @@ export const JobList = () => {
 
   const handleClear = () => {
     setQInput("");
+    setLocationInput("");
     clear();
   };
 
   return (
-    <div className="p-xl max-w-1200 my-0 mx-auto">
-      <div className="flex items-center justify-between mb-lg">
+    <main className="p-xl max-w-1200 my-0 mx-auto">
+      <title>Job Listings — ATS</title>
+      <header className="flex items-center justify-between mb-lg">
         <Text variant="heading-xl">Job Listings</Text>
         <AuthHeader
           hasBearerToken={hasBearerToken}
           user={user}
           onLogout={handleLogout}
         />
-      </div>
+      </header>
 
       <JobSearchBar
         filters={filters}
         qInput={qInput}
         onQChange={setQInput}
+        locationInput={locationInput}
+        onLocationChange={setLocationInput}
         setFilter={setFilter}
         clear={handleClear}
       />
 
       {isLoading ? (
-        <div className="flex justify-center py-xl">
+        <div
+          className="flex justify-center py-xl"
+          role="status"
+          aria-live="polite"
+        >
           <Loader />
+          <span className="sr-only">Loading jobs...</span>
         </div>
       ) : isError ? (
-        <Text color="red">Failed to load jobs. Please try again.</Text>
+        <div role="alert">
+          <Text color="red">Failed to load jobs. Please try again.</Text>
+        </div>
       ) : (
         <>
           <div
@@ -111,6 +132,6 @@ export const JobList = () => {
           )}
         </>
       )}
-    </div>
+    </main>
   );
 };

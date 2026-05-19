@@ -9,6 +9,7 @@ import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
 import { SignOut } from "./pages/SignOut";
 import { Apply } from "./pages/Apply";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { makeQueryClient } from "./lib/queryClient";
 
 import "./index.css";
@@ -27,7 +28,14 @@ export const App = () => {
           <Route path="/" element={<JobList />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
           <Route path="/jobs/:jobId/apply" element={<Apply />} />
-          <Route path="/jobs/new" element={<CreateJob />} />
+          <Route
+            path="/jobs/new"
+            element={
+              <ProtectedRoute>
+                <CreateJob />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />

@@ -9,12 +9,19 @@ export const SignOut = () => {
     const handleSignOut = async () => {
       try {
         await logout();
-      } catch (e) {}
+      } catch (err) {
+        console.error("Logout API failed:", err);
+      }
       navigate("/signin", { replace: true });
     };
 
     handleSignOut();
   }, [navigate]);
 
-  return <div>Signing out...</div>;
+  return (
+    <main>
+      <title>Signing out — ATS</title>
+      <div>Signing out...</div>
+    </main>
+  );
 };

@@ -22,7 +22,8 @@ export const Apply = () => {
   };
 
   return (
-    <div className="max-w-640 mx-auto my-4xl p-xl">
+    <main className="max-w-640 mx-auto my-4xl p-xl">
+      <title>Apply — ATS</title>
       <WUILink
         as={Link}
         to="/"
@@ -43,6 +44,6 @@ export const Apply = () => {
           />
         </Card.Body>
       </Card>
-    </div>
+    </main>
   );
 };

@@ -12,7 +12,7 @@ import {
 // Convert the Zod enum values into the { label, value } shape the welcome-ui Select expects. e.g. "FULL_TIME" -> { value: "FULL_TIME", label: "full time" }.
 const CONTRACT_OPTIONS = ContractTypeSchema.options.map((value) => ({
   value,
-  label: value.replace("_", " ").toLowerCase(),
+  label: value.replaceAll("_", " ").toLowerCase(),
 }));
 
 const WORK_MODE_OPTIONS = WorkModeSchema.options.map((value) => ({
@@ -24,6 +24,8 @@ export type JobSearchBarProps = {
   filters: JobFilters;
   qInput: string;
   onQChange: (value: string) => void;
+  locationInput: string;
+  onLocationChange: (value: string) => void;
   setFilter: (key: keyof JobFilters, value: string | undefined) => void;
   clear: () => void;
 };
@@ -32,13 +34,15 @@ export const JobSearchBar = ({
   filters,
   qInput,
   onQChange,
+  locationInput,
+  onLocationChange,
   setFilter,
   clear,
 }: JobSearchBarProps) => {
   // True if at least one filter is set — used to disable the "Clear all" button when there is nothing to clear.
   const hasAnyFilter =
     !!qInput ||
-    !!filters.location ||
+    !!locationInput ||
     !!filters.contract_type ||
     !!filters.work_mode;
 
@@ -55,8 +59,8 @@ export const JobSearchBar = ({
       <Field className="flex-1" label="Location">
         <InputText
           placeholder="e.g. Paris"
-          value={filters.location ?? ""}
-          onChange={(e) => setFilter("location", e.target.value)}
+          value={locationInput}
+          onChange={(e) => onLocationChange(e.target.value)}
         />
       </Field>
       <Field className="flex-1" label="Contract type">

@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { JobFiltersSchema, type JobFilters } from "../schemas/job";
@@ -15,21 +16,34 @@ export function useJobFilters() {
   const parsed = JobFiltersSchema.safeParse(raw);
   const filters: JobFilters = parsed.success ? parsed.data : {};
 
-  const setFilter = (key: keyof JobFilters, value: string | undefined) => {
-    const next = new URLSearchParams(searchParams);
-    if (value === undefined || value === "") {
-      next.delete(key);
-    } else {
-      next.set(key, value);
-    }
-    setSearchParams(next, { replace: true });
-  };
+  const setFilter = useCallback(
+    (key: keyof JobFilters, value: string | undefined) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value === undefined || value === "") {
+            next.delete(key);
+          } else {
+            next.set(key, value);
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
-  const clear = () => {
-    const next = new URLSearchParams(searchParams);
-    FILTER_KEYS.forEach((k) => next.delete(k));
-    setSearchParams(next, { replace: true });
-  };
+  const clear = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        FILTER_KEYS.forEach((k) => next.delete(k));
+        return next;
+      },
+      { replace: true },
+    );
+  }, [setSearchParams]);
 
   return { filters, setFilter, clear };
 }
